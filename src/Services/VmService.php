@@ -40,8 +40,15 @@ class VmService {
         return null;
     }
     
-    public function takeSnapshot(  Vm $vm, $name ) {
+    public function takeSnapshot( Vm $vm, $name ) {
         $output = null;$cmd = $this->cmdVboxmanage . ' snapshot '.$vm->getUuid().' take \''.$name.'\'';
+        echo($cmd.PHP_EOL);
+        exec( $cmd, $output);
+        $this->vms = $this->getListVms();
+    }
+
+    public function deleteSnapshot( Vm $vm, Snapshot $snapshot ) {
+        $output = null;$cmd = $this->cmdVboxmanage . ' snapshot '.$vm->getUuid().' delete '.$snapshot->getUuid();
         echo($cmd.PHP_EOL);
         exec( $cmd, $output);
         $this->vms = $this->getListVms();
