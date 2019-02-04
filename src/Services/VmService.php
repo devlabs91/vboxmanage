@@ -9,10 +9,35 @@ use Devlabs91\Vboxmanage\Models\Snapshot;
 
 class VmService {
     
-    public $cmdVboxmanage;
+    /** @var string */
+    private $cmdVboxmanage;
+    
+    /** @var Vms */
+    private $vms;
     
     public function __construct( ) {
         $this->whichVboxmanageCommand();
+        $this->vms = $this->getListVms();
+    }
+    
+    public function hasVm( $name ) {
+        if( $this->vms->hasVmByKey( $name ) ) { return true; }
+        return false;
+    }
+    
+    public function getVm( $name ) {
+        if( $this->hasVm( $name ) ) { return $this->vms->getVmByKey( $name ); }
+        return null;
+    }
+    
+    public function hasSnapshot( Vm $vm, $name ) {
+        if ( $vm->getSnapshots()->hasSnapshotByKey( $name ) ) { return true; }
+        return false;
+    }
+    
+    public function getSnapshot( Vm $vm, $name ) {
+        if( $this->hasSnapshot($vm, $name) ) { return $vm->getSnapshots()->getSnapshotByKey( $name ); }
+        return null;
     }
     
     /**
@@ -64,12 +89,14 @@ class VmService {
         $output = null;$cmd = $this->cmdVboxmanage . ' unregistervm '.$vm->getUuid().' --delete';
         echo($cmd.PHP_EOL);
         exec( $cmd, $output);
+        $this->vms = $this->getListVms();
     }
     
     public function cloneVm( Vm $vm, Snapshot $snapshot, $cloneName ) {
         $output = null;$cmd = $this->cmdVboxmanage . ' clonevm '.$vm->getUuid().' --snapshot '.$snapshot->getUuid().' --options link --name '.$cloneName.' --register';
         echo($cmd.PHP_EOL);
         exec( $cmd, $output);
+        $this->vms = $this->getListVms();
     }
     
     public function removeNetwork( $network ) {
