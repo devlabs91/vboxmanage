@@ -40,6 +40,13 @@ class VmService {
         return null;
     }
     
+    public function takeSnapshot(  Vm $vm, $name ) {
+        $output = null;$cmd = $this->cmdVboxmanage . ' snapshot '.$vm->getUuid().' take \''.$name.'\'';
+        echo($cmd.PHP_EOL);
+        exec( $cmd, $output);
+        $this->vms = $this->getListVms();
+    }
+    
     /**
      * @return Vms
      */
